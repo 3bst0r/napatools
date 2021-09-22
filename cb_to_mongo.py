@@ -5,7 +5,7 @@ import json
 import pymongo
 import datetime
 
-#SERVER = "localhost"
+# SERVER = "localhost"
 SERVER = "172.23.100.190"
 
 
@@ -13,14 +13,14 @@ def transfer(threads, customers, cbpassword, cbbucket, mongodb, mongotable, offs
     batch_size = int(customers) / int(threads)
 
     for i in range(0, int(threads)):
-        print "process {} started".format(i)
+        print("process {} started".format(i))
         new_thread = Thread(target=run_batch, args=(batch_size, i, cbpassword, cbbucket, mongodb, mongotable, offset))
         new_thread.start()
 
 
 def insert_to_mongo(id, doc, mcoll):
     post_id = mcoll.insert_one(doc).inserted_id
-    #print "document {} has been inserted to mongo".format(post_id)
+    # print "document {} has been inserted to mongo".format(post_id)
 
 
 def run_batch(size, id, cbpassword, cbbucket, mongodb, mongotable, offset):
@@ -36,13 +36,13 @@ def run_batch(size, id, cbpassword, cbbucket, mongodb, mongotable, offset):
     min = id * size + 1 + int(offset)
     max = min + size
 
-    for i in range (min, max):
+    for i in range(min, max):
         doc_id = "customer:::{}".format(i)
         doc = cb.get(doc_id).value
 
         orders = []
         orders = doc["order_list"]
-        y,m,d = doc["dob"].split("-")
+        y, m, d = doc["dob"].split("-")
         doc["dob"] = datetime.datetime(int(y), int(m), int(d))
 
         insert_to_mongo(id, doc, mcollection)
@@ -50,6 +50,7 @@ def run_batch(size, id, cbpassword, cbbucket, mongodb, mongotable, offset):
         for order in orders:
             orderdoc = cb.get(order).value
             insert_to_mongo(id, orderdoc, mcollection)
+
 
 threads = 20
 customers = 10000000
@@ -74,6 +75,5 @@ for i, item in enumerate(sys.argv):
         mongotable = sys.argv[i + 1]
     elif item == "-offset":
         offset = sys.argv[i + 1]
-
 
 transfer(threads, customers, cbpassword, cbbucket, mongodb, mongotable, offset)

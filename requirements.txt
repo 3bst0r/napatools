@@ -1,0 +1,37 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: osx-64
+attrs=21.2.0=pypi_0
+brotlipy=0.7.0=py38h9ed2024_1003
+ca-certificates=2021.7.5=hecd8cb5_1
+certifi=2021.5.30=py38hecd8cb5_0
+cffi=1.14.6=py38h2125817_0
+charset-normalizer=2.0.4=pyhd3eb1b0_0
+couchbase=3.2.1=pypi_0
+cryptography=3.4.7=py38h2fd3fbb_0
+durationpy=0.5=pypi_0
+idna=3.2=pyhd3eb1b0_0
+libcxx=12.0.0=h2f01273_0
+libffi=3.3=hb1e8313_2
+mypy-extensions=0.4.3=pypi_0
+ncurses=6.2=h0a44026_1
+numpy=1.21.2=pypi_0
+openssl=1.1.1l=h9ed2024_0
+pip=21.0.1=py38hecd8cb5_0
+pycparser=2.20=py_2
+pymongo=3.12.0=pypi_0
+pyopenssl=20.0.1=pyhd3eb1b0_1
+pyrsistent=0.18.0=pypi_0
+pysocks=1.7.1=py38_1
+python=3.8.11=h88f2d9e_1
+readline=8.1=h9ed2024_0
+requests=2.26.0=pyhd3eb1b0_0
+setuptools=52.0.0=py38hecd8cb5_0
+six=1.15.0=pypi_0
+sqlite=3.36.0=hce871da_0
+tk=8.6.10=hb0a8c7a_0
+urllib3=1.26.6=pyhd3eb1b0_1
+wheel=0.37.0=pyhd3eb1b0_1
+wrapt=1.12.1=pypi_0
+xz=5.2.5=h1de35cc_0
+zlib=1.2.11=h1de35cc_3

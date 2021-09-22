@@ -25,7 +25,7 @@ def run(s, b, p, i, f):
 
     random.shuffle(ids)
     counter = 0
-    print "Bulding read dataset:"
+    print("Bulding read dataset:")
     for docid in ids:
         counter += 1
         if counter % 100 == 0:
@@ -38,7 +38,7 @@ def run(s, b, p, i, f):
                 else:
                     progress_par += "#"
             progress_par += "]"
-            print progress_par
+            print(progress_par)
 
         document = cb.get(docid).value
 
@@ -96,7 +96,7 @@ def run(s, b, p, i, f):
                     break
 
             if totally_full:
-                print "Updated dataset is complerted, dumping to a file"
+                print("Updated dataset is complerted, dumping to a file")
                 outf = f.replace("meta.", "dataset.")
                 filenameout = "{}/{}".format(defaultdatapath, outf)
                 with open(filenameout, 'w') as fp:
@@ -104,11 +104,11 @@ def run(s, b, p, i, f):
                 fp.close()
                 sys.exit()
             else:
-                print "Not enough unique values to satisfy the update docs requirement"
+                print("Not enough unique values to satisfy the update docs requirement")
 
     full, fields = is_full(dataset, with_fields=True)
     if not full:
-        print "Not enough unique values to satisfy the dataset requirements. Fields not full are: \n {}".format(fields)
+        print("Not enough unique values to satisfy the dataset requirements. Fields not full are: \n {}".format(fields))
 
 
 def post_to_dataset(_dataset, _field, _value):
