@@ -2,11 +2,13 @@ import datetime
 import sys
 from threading import Thread
 
-import pymongo
+import pyArango.connection as arango
 from couchbase.bucket import Bucket
 from couchbase.cluster import Cluster, ClusterOptions, PasswordAuthenticator, ClusterTimeoutOptions
+from pyArango.collection import Collection
+from pyArango.database import Database
 
-SERVER = "dbis-nosql-comparison.uibk.ac.at"
+SERVER = 'dbis-nosql-comparison.uibk.ac.at'
 
 
 def transfer(threads, customers, cbuser, cbpassword, cbbucket, mongodb, mongotable, offset):
@@ -19,9 +21,10 @@ def transfer(threads, customers, cbuser, cbpassword, cbbucket, mongodb, mongotab
         new_thread.start()
 
 
-def insert_to_mongo(id, doc, mcoll):
-    post_id = mcoll.insert_one(doc).inserted_id
-    print("document {} has been inserted to mongo".format(post_id))
+def insert_to_arango(id, doc, db: Database):
+    aql = "INSERT @doc INTO usertable LET newDoc = NEW RETURN newDoc"
+    post_doc = db.AQLQuery(aql, bindVars={"doc": doc})
+    print("document {} has been inserted to arango".format(post_doc[0]["_key"]))
 
 
 def run_batch(size, id, cbuser, cbpassword, cbbucket, mongodb, mongotable, offset):
@@ -32,11 +35,10 @@ def run_batch(size, id, cbuser, cbpassword, cbbucket, mongodb, mongotable, offse
                                              config_total_timeout=datetime.timedelta(seconds=10))))
         cb = cluster.bucket(cbbucket)
     else:
-        cb = Bucket("couchbase://{}/{}?operation_timeout=10".format(SERVER))
+        cb = Bucket("couchbase://{}/?operation_timeout=10".format(SERVER))
 
-    client = pymongo.MongoClient("mongodb://{}:27017/".format(SERVER))
-    mdb = client[mongodb]
-    mcollection = mdb[mongotable]
+    client = arango.Connection(arangoURL='http://{}:8529'.format(SERVER))
+    db = client['ycsb']
 
     min = id * size + 1 + int(offset)
     max = min + size
@@ -47,17 +49,17 @@ def run_batch(size, id, cbuser, cbpassword, cbbucket, mongodb, mongotable, offse
         doc_id = "customer:::{}".format(i)
         doc = cb.get(doc_id).value
 
-        orders = []
-        orders = doc["order_list"]
-        y, m, d = doc["dob"].split("-")
-        doc["dob"] = datetime.datetime(int(y), int(m), int(d))
+        doc["_key"] = doc["_id"]
 
-        insert_to_mongo(id, doc, mcollection)
+        orders = doc["order_list"]
+
+        insert_to_arango(id, doc, db)
 
         for order in orders:
             if order not in orders_inserted:
                 orderdoc = cb.get(order).value
-                insert_to_mongo(id, orderdoc, mcollection)
+                orderdoc["_key"] = orderdoc["_id"]
+                insert_to_arango(id, orderdoc, db)
                 orders_inserted.add(order)
 
 
@@ -81,10 +83,6 @@ for i, item in enumerate(sys.argv):
         cbuser = sys.argv[i + 1]
     elif item == "-cbbucket":
         cbbucket = sys.argv[i + 1]
-    elif item == "-mongodb":
-        mongodb = sys.argv[i + 1]
-    elif item == "-mongotable":
-        mongotable = sys.argv[i + 1]
     elif item == "-offset":
         offset = sys.argv[i + 1]
 

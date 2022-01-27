@@ -1,0 +1,9 @@
+db: arangodb3
+command: run
+workload: soe/workloadsf
+#operation: soe_read
+experiment-name: example_experiment
+#indexes-strategy: all
+indexes-strategy: none
+#indexes-strategy: best
+#indexes-strategy: workload

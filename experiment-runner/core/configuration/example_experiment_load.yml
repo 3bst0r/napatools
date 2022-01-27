@@ -1,0 +1,3 @@
+db: arangodb3
+command: load
+workload: soe/workloadsa
