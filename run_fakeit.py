@@ -1,3 +1,4 @@
+# Modified by Johannes A. Ebster
 import subprocess
 from threading import Thread
 import sys
