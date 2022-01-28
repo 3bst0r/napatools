@@ -1,3 +1,4 @@
+# Created by Johannes A. Ebster
 db: arangodb3
 command: run
 workload: soe/workloadsa

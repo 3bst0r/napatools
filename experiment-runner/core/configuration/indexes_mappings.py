@@ -1,3 +1,4 @@
+# Created by Johannes A. Ebster
 from enum import Enum, unique, auto
 from typing import Dict, List, Set
 

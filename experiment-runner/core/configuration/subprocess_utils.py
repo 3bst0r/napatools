@@ -1,3 +1,4 @@
+# Created by Johannes A. Ebster
 import subprocess
 
 VM_DBIS_NOSQL_HOST = "vm-dbis-nosql"

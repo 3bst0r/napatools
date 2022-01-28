@@ -1,3 +1,4 @@
+# Created by Johannes A. Ebster
 import os
 
 from .ConfigParameters import DB, WORKLOAD, COMMAND, MONGODB, COUCHBASE, ARANGODB, DB_SPECIFIC_PROPS, \

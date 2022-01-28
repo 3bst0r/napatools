@@ -1,3 +1,4 @@
+# Created by Johannes A. Ebster
 ycsb-path: /Users/johannesprivat/IdeaProjects/YCSB-JSON-fork/distribution/target/ycsb-0.13.0-SNAPSHOT
 db-specific-props:
   couchbase:

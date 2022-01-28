@@ -1,3 +1,4 @@
+# Created by Johannes A. Ebster
 # this file defines configuration keys to be used in .yml files for specifying experiments, and some other constants
 YCSB_PATH = 'ycsb-path'
 DB = 'db'

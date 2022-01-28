@@ -1,3 +1,4 @@
+# Created by Johannes A. Ebster
 from .ConfigParameters import *
 from enum import Enum
 from .indexes_scripts import drop_all_indexes, create_index
