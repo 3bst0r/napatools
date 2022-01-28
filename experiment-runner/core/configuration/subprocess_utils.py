@@ -9,7 +9,7 @@ def execute_script_on_remote_machine(script_name, wait=True):
     if wait:
         exit_code = ret_val
         if exit_code != 0:
-            raise RuntimeError(f"script {script_name} return non-zero exit-code.")
+            raise RuntimeError(f"script {script_name} returned non-zero exit-code.")
     else:
         return ret_val
 
