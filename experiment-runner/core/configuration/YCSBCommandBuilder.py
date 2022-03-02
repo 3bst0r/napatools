@@ -1,8 +1,8 @@
 # Created by Johannes A. Ebster
 import os
 
-from .ConfigParameters import DB, WORKLOAD, COMMAND, MONGODB, COUCHBASE, ARANGODB, DB_SPECIFIC_PROPS, \
-    YCSB_DEFAULT_PROPS, YCSB_DEFAULT_RUN_PROPS, OPERATION, EXPERIMENT_NAME
+from .config_parameters import DB, WORKLOAD, COMMAND, MONGODB, COUCHBASE, ARANGODB, DB_SPECIFIC_PROPS, \
+    YCSB_DEFAULT_PROPS, YCSB_DEFAULT_RUN_PROPS, YCSB_DEFAULT_LOAD_PROPS, OPERATION, EXPERIMENT_NAME
 
 HDR_HISTOGRAM_OUTPUT_PATH = "hdrhistogram.output.path"
 RAW_OUTPUT_FILE = 'measurement.raw.output_file'
@@ -16,6 +16,7 @@ class YCSBCommandBuilder:
                f"{self.db_specific_props()} " \
                f"{self.ycsb_default_props()} " \
                f"{self.ycsb_default_run_props()} " \
+               f"{self.ycsb_default_load_props()} " \
                f"{self.ycsb_operation_props()} " \
                f"{self.output_props()} "
 
@@ -73,6 +74,13 @@ class YCSBCommandBuilder:
             ycsb_default_run_props = self.default_config[YCSB_DEFAULT_RUN_PROPS]
             return self.to_parameters(ycsb_default_run_props)
 
+    def ycsb_default_load_props(self) -> str:
+        if self.command != "load":
+            return " "
+        else:
+            ycsb_default_load_props = self.default_config[YCSB_DEFAULT_LOAD_PROPS]
+            return self.to_parameters(ycsb_default_load_props)
+
     def ycsb_operation_props(self) -> str:
         if self.operation is not None:
             return self.to_parameter(self.operation, 1)
@@ -86,7 +94,7 @@ class YCSBCommandBuilder:
                f"{self.to_parameter(RAW_OUTPUT_FILE, raw_output_filename)}"
 
     def get_log_output_filename(self) -> str:
-        return f"{self.experiment_name}_output.log"
+        return f"{self.experiment_name}_{self.command}_output.log"
 
     @staticmethod
     def get_absolute_path_of_output_dir(filename) -> str:

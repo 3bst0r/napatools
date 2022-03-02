@@ -1,15 +1,16 @@
 # Created by Johannes A. Ebster
-from .ConfigParameters import *
-from enum import Enum
-from .indexes_scripts import drop_all_indexes, create_index
+from enum import Enum, auto
+
+from .config_parameters import *
 from .indexes_mappings import get_indexes_for_workload, get_all_indexes, get_best_indexes_for_operation
+from .indexes_scripts import drop_all_indexes, create_index
 
 
 class IndexesStrategies(Enum):
-    best = 1  # just the best index for operation
-    all = 2  # all indexes
-    none = 3  # no indexes (except primary)
-    workload = 4  # best indexes for each operation contained in workload
+    best = auto()  # just the best index for operation
+    all = auto()  # all indexes
+    none = auto()  # no indexes (except primary)
+    workload = auto()  # best indexes for each operation contained in workload
 
 
 class IndexesManager:

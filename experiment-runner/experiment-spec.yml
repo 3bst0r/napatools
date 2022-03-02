@@ -1,6 +1,5 @@
 # Created by Johannes A. Ebster
 db: arangodb3
-command: run
 workload: soe/workloadsf
 #operation: soe_read
 experiment-name: example_experiment
@@ -8,4 +7,7 @@ experiment-name: example_experiment
 indexes-strategy: none
 #indexes-strategy: best
 #indexes-strategy: workload
-restore-before-run: True
+# TODO incorporate into code
+restore-db-before-run: yes
+load-before-run: yes
+debug-java: no

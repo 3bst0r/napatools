@@ -20,3 +20,6 @@ ycsb-default-run-props:
   measurement.trackjvm: "true"
   measurementtype: hdrhistogram+raw
   hdrhistogram.fileoutput: "true"
+ycsb-default-load-props:
+  threadcount: 32
+  recordcount: 10000

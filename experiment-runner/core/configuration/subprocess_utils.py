@@ -6,7 +6,7 @@ VM_DBIS_SCRIPTS = "~/ifistorage/scripts"
 
 
 def execute_script_on_remote_machine(script_name, wait=True):
-    ret_val = execute_subprocess(cmd=f"ssh {VM_DBIS_NOSQL_HOST} '{VM_DBIS_SCRIPTS}/{script_name}'", wait=wait)
+    ret_val = execute_cmd_on_shell(cmd=f"ssh {VM_DBIS_NOSQL_HOST} '{VM_DBIS_SCRIPTS}/{script_name}'", wait=wait)
     if wait:
         exit_code = ret_val
         if exit_code != 0:
@@ -15,8 +15,15 @@ def execute_script_on_remote_machine(script_name, wait=True):
         return ret_val
 
 
-def execute_subprocess(cmd, wait=True):
+def execute_cmd_on_shell(cmd, wait=True):
     p = subprocess.Popen(cmd, shell=True)
+    if wait:
+        return p.wait()
+    return p
+
+
+def execute_cmd(cmd, wait=True):
+    p = subprocess.Popen(cmd, shell=False)
     if wait:
         return p.wait()
     return p

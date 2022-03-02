@@ -3,11 +3,13 @@ import time
 
 from yaml import load
 from core.configuration.YCSBCommandBuilder import YCSBCommandBuilder
-from core.configuration.ConfigParameters import *
+from core.configuration.config_parameters import *
 from core.configuration.IndexesManager import IndexesManager
 import core.configuration.subprocess_utils as subprocess_utils
+import core.configuration.memcached_utils as memcached
 import argparse
 import os
+import subprocess
 
 MONITOR_CPU_SCRIPT = "monitor_cpu.sh"
 
@@ -15,7 +17,6 @@ try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
     from yaml import Loader, Dumper
-import subprocess
 
 
 def main():
@@ -72,6 +73,14 @@ def run_experiment(default_cfg, experiment_spec):
     time.sleep(wait_seconds)
     print(f"finished waiting.")
 
+    if experiment_spec[RESTORE_DB_BEFORE_RUN]:
+        restore_before_run(default_cfg, experiment_spec)
+
+    if experiment_spec[LOAD_BEFORE_RUN]:
+        load_before_run(default_cfg, experiment_spec)
+
+    input("Press Enter to continue...")
+
     print("setting up indexes for experiment...")
     setup_indexes_for_experiment(experiment_spec)
     print("finished setting up indexes for experiment.")
@@ -83,7 +92,7 @@ def run_experiment(default_cfg, experiment_spec):
     """
 
     print("running ycsb...")
-    run_ycsb(default_cfg=default_cfg, experiment_spec=experiment_spec)
+    ycsb_run(default_cfg=default_cfg, experiment_spec=experiment_spec)
     print("ycsb run finished")
 
 
@@ -94,6 +103,12 @@ def validate_spec(experiment_spec):
         raise ValueError(f"Either {OPERATION} or {WORKLOAD} must be present in spec")
     if EXPERIMENT_NAME not in experiment_spec:
         raise ValueError(f"{EXPERIMENT_NAME} must be present in spec")
+    if RESTORE_DB_BEFORE_RUN not in experiment_spec:
+        raise ValueError(f"{RESTORE_DB_BEFORE_RUN} must be present in spec")
+    if LOAD_BEFORE_RUN not in experiment_spec:
+        raise ValueError(f"{LOAD_BEFORE_RUN} must be present in spec")
+    if COMMAND in experiment_spec:
+        raise ValueError(f"{COMMAND} can no longer be specified in spec")
 
 
 def stop_all_db_services_on_remote_machine():
@@ -102,6 +117,22 @@ def stop_all_db_services_on_remote_machine():
 
 def start_db_on_remote_machine(db):
     subprocess_utils.execute_script_on_remote_machine(f"start_{db}_db_service")
+
+
+def load_before_run(default_cfg, experiment_spec):
+    db = experiment_spec[DB]
+    port = default_cfg[DB_SPECIFIC_PROPS][db][SOE_STORAGE_PORT]
+    print(f"Restarting memcached on port {port}...")
+    memcached.restart_memcached(port)
+    print("Successfully restarted memcached.")
+    print("Executing YCSB load phase...")
+    ycsb_load(default_cfg, experiment_spec)
+    print("YCSB load phase finished.")
+
+
+def restore_before_run(default_cfg, experiment_spec):
+    db = experiment_spec[DB]
+
 
 
 def setup_indexes_for_experiment(experiment_spec):
@@ -113,13 +144,28 @@ def start_cpu_monitoring_on_remote_server():
     return subprocess_utils.execute_script_on_remote_machine(MONITOR_CPU_SCRIPT, wait=False)
 
 
-def run_ycsb(default_cfg, experiment_spec):
+def ycsb_load(default_cfg, experiment_spec):
+    experiment_spec[COMMAND] = 'load'
+    exec_ycsb(default_cfg, experiment_spec)
+
+
+def ycsb_run(default_cfg, experiment_spec):
+    experiment_spec[COMMAND] = 'run'
+    exec_ycsb(default_cfg, experiment_spec)
+
+
+def exec_ycsb(default_cfg, experiment_spec):
     ycsb_path = default_cfg[YCSB_PATH]
     ycsb_sh = f"{ycsb_path}/bin/ycsb.sh"
     ycsb_command_builder = YCSBCommandBuilder(experiment_spec=experiment_spec, default_config=default_cfg)
     ycsb_command = ycsb_command_builder.build_command()
     log_output_filename = ycsb_command_builder.get_log_output_filename()
-    command = f"sh {ycsb_sh} {ycsb_command}"
+    if DEBUG_JAVA in experiment_spec and experiment_spec[DEBUG_JAVA]:
+        debug_java = f". set_java_opts_debug; "
+        print("remote debugging enabled. don't forget to start remote debugger.")
+    else:
+        debug_java = ""
+    command = f"{debug_java}sh {ycsb_sh} {ycsb_command}"
     with open(log_output_filename, "w") as log_output_file:
         p = subprocess.Popen(command, cwd=ycsb_path, stdout=log_output_file, stderr=log_output_file, shell=True)
     p.wait()
