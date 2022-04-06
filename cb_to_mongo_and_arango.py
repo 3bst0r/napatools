@@ -98,7 +98,7 @@ def run_batch(size, id, cbuser, cbpassword, cbbucket, mongodb, mongotable, offse
         for order in orders:
             if order not in orders_inserted:
                 cb_orderdoc = cb.get(order).value
-                insert_order_doc(arango_db, cb_orderdoc, mcollection, postgres_cursor)
+                insert_order_doc(cb_orderdoc, arango_db, mcollection, postgres_cursor)
                 orders_inserted.add(order)
 
     postgres_connection.commit()
@@ -106,7 +106,7 @@ def run_batch(size, id, cbuser, cbpassword, cbbucket, mongodb, mongotable, offse
     postgres_connection.close()
 
 
-def insert_order_doc(arango_db, cb_orderdoc, mcollection, pg_db):
+def insert_order_doc(cb_orderdoc, arango_db, mcollection, pg_db):
     insert_order_doc_to_mongo(cb_orderdoc, mcollection)
     insert_doc_to_arango(cb_orderdoc, arango_db)
     insert_doc_to_postgres(cb_orderdoc, pg_db)
