@@ -3,12 +3,14 @@ import datetime
 import sys
 import copy
 from threading import Thread
-
 import pymongo
 from couchbase.bucket import Bucket
 from couchbase.cluster import Cluster, ClusterOptions, PasswordAuthenticator, ClusterTimeoutOptions
 from pyArango.database import Database
 import pyArango.connection as arango
+import psycopg2 as postgres
+from psycopg2.extras import DictCursor
+import json
 
 SERVER = "dbis-nosql-comparison.uibk.ac.at"
 
@@ -38,6 +40,12 @@ def insert_customer_doc_to_mongo(cb_doc, mcoll):
     insert_to_mongo(mongodoc, mcoll)
 
 
+def insert_doc_to_postgres(cb_doc, pg_db):
+    pg_doc = copy.copy(cb_doc)
+    pg_db.execute("INSERT INTO usertable (YCSB_KEY, YCSB_VALUE) VALUES (%s, %s) ",
+                  (pg_doc["_id"], json.dumps(pg_doc)))
+
+
 def insert_order_doc_to_mongo(cb_doc, mcoll):
     insert_to_mongo(cb_doc, mcoll)
 
@@ -53,7 +61,8 @@ def insert_doc_to_arango(cb_doc, db: Database):
     print("document {} has been inserted to arango\n".format(post_doc[0]["_key"]))
 
 
-def run_batch(size, id, cbuser, cbpassword, cbbucket, mongodb, mongotable, offset):
+def run_batch(size, id, cbuser, cbpassword, cbbucket, mongodb, mongotable, offset, pguser='postgres',
+              pgpasswd='postgres', pgdbname='test'):
     if cbpassword != "" and cbuser != "":
         cluster = Cluster("couchbase://{}".format(SERVER),
                           ClusterOptions(authenticator=PasswordAuthenticator(cbuser, cbpassword),
@@ -70,6 +79,10 @@ def run_batch(size, id, cbuser, cbpassword, cbbucket, mongodb, mongotable, offse
     arango_client = arango.Connection(arangoURL='http://{}:8529'.format(SERVER))
     arango_db = arango_client['ycsb']
 
+    postgres_connection = postgres.connect(f"dbname={pgdbname} user={pguser} password={pgpasswd} host={SERVER}")
+    postgres_cursor = postgres_connection \
+        .cursor(cursor_factory=DictCursor)
+
     min = id * size + 1 + int(offset)
     max = min + size
 
@@ -81,14 +94,28 @@ def run_batch(size, id, cbuser, cbpassword, cbbucket, mongodb, mongotable, offse
 
         orders = cb_doc["order_list"]
 
-        insert_customer_doc_to_mongo(cb_doc, mcollection)
-        insert_doc_to_arango(cb_doc, arango_db)
+        insert_customer_doc(arango_db, cb_doc, mcollection, postgres_cursor)
         for order in orders:
             if order not in orders_inserted:
                 cb_orderdoc = cb.get(order).value
-                insert_order_doc_to_mongo(cb_orderdoc, mcollection)
-                insert_doc_to_arango(cb_orderdoc, arango_db)
+                insert_order_doc(arango_db, cb_orderdoc, mcollection, postgres_cursor)
                 orders_inserted.add(order)
+
+    postgres_connection.commit()
+    postgres_cursor.close()
+    postgres_connection.close()
+
+
+def insert_order_doc(arango_db, cb_orderdoc, mcollection, pg_db):
+    insert_order_doc_to_mongo(cb_orderdoc, mcollection)
+    insert_doc_to_arango(cb_orderdoc, arango_db)
+    insert_doc_to_postgres(cb_orderdoc, pg_db)
+
+
+def insert_customer_doc(arango_db, cb_doc, mcollection, pg_db):
+    insert_customer_doc_to_mongo(cb_doc, mcollection)
+    insert_doc_to_arango(cb_doc, arango_db)
+    insert_doc_to_postgres(cb_doc, pg_db)
 
 
 threads = 20
