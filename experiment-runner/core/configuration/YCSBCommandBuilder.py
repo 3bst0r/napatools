@@ -2,7 +2,7 @@
 import os
 
 from .config_parameters import DB, WORKLOAD, COMMAND, MONGODB, COUCHBASE, ARANGODB, DB_SPECIFIC_PROPS, \
-    YCSB_DEFAULT_PROPS, YCSB_DEFAULT_RUN_PROPS, YCSB_DEFAULT_LOAD_PROPS, OPERATION, EXPERIMENT_NAME
+    YCSB_DEFAULT_PROPS, YCSB_DEFAULT_RUN_PROPS, YCSB_DEFAULT_LOAD_PROPS, OPERATION, EXPERIMENT_NAME, POSTGRESQL
 
 HDR_HISTOGRAM_OUTPUT_PATH = "hdrhistogram.output.path"
 RAW_OUTPUT_FILE = 'measurement.raw.output_file'
@@ -53,12 +53,15 @@ class YCSBCommandBuilder:
         arangodb = ARANGODB
         couchbase = COUCHBASE
         mongodb = MONGODB
+        postgresql = POSTGRESQL
         if self.db == arangodb:
             props = db_specific_props[arangodb]
         elif self.db == mongodb:
             props = db_specific_props[mongodb]
         elif self.db == couchbase:
             props = db_specific_props[couchbase]
+        elif self.db == postgresql:
+            props = db_specific_props[postgresql]
         else:
             raise ValueError(f"unknown db: {self.db}")
         return self.to_parameters(props)

@@ -6,6 +6,7 @@ from core.configuration.YCSBCommandBuilder import YCSBCommandBuilder
 from core.configuration.config_parameters import *
 from core.configuration.IndexesManager import IndexesManager
 import core.configuration.subprocess_utils as subprocess_utils
+import core.configuration.db_restore_scripts as db_restore_scripts
 import core.configuration.memcached_utils as memcached
 import argparse
 import os
@@ -79,7 +80,7 @@ def run_experiment(default_cfg, experiment_spec):
     if experiment_spec[LOAD_BEFORE_RUN]:
         load_before_run(default_cfg, experiment_spec)
 
-    input("Press Enter to continue...")
+    # input("Press Enter to continue...")
 
     print("setting up indexes for experiment...")
     setup_indexes_for_experiment(experiment_spec)
@@ -132,7 +133,7 @@ def load_before_run(default_cfg, experiment_spec):
 
 def restore_before_run(default_cfg, experiment_spec):
     db = experiment_spec[DB]
-
+    db_restore_scripts.restore_db(db)
 
 
 def setup_indexes_for_experiment(experiment_spec):

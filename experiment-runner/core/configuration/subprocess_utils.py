@@ -3,10 +3,12 @@ import subprocess
 
 VM_DBIS_NOSQL_HOST = "vm-dbis-nosql"
 VM_DBIS_SCRIPTS = "~/ifistorage/scripts"
+LOAD_PATH = f"source {VM_DBIS_SCRIPTS}/setup_path.sh"
 
 
 def execute_script_on_remote_machine(script_name, wait=True):
-    ret_val = execute_cmd_on_shell(cmd=f"ssh {VM_DBIS_NOSQL_HOST} '{VM_DBIS_SCRIPTS}/{script_name}'", wait=wait)
+    ret_val = execute_cmd_on_shell(cmd=f"ssh {VM_DBIS_NOSQL_HOST} '{LOAD_PATH}; {VM_DBIS_SCRIPTS}/{script_name}'",
+                                   wait=wait)
     if wait:
         exit_code = ret_val
         if exit_code != 0:

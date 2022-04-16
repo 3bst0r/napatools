@@ -1,13 +1,17 @@
 # Created by Johannes A. Ebster
 ycsb-path: /Users/johannesprivat/IdeaProjects/YCSB-JSON-fork/distribution/target/ycsb-0.13.0-SNAPSHOT
 db-specific-props:
-  couchbase:
+  couchbase2:
     soe_storage_port: 8001
+    couchbase.password: default
+    couchbase.host: dbis-nosql-comparison.uibk.ac.at
   arangodb3:
     arangodb.ip: dbis-nosql-comparison.uibk.ac.at
     soe_storage_port: 8002
   mongodb:
     soe_storage_port: 8003
+  postgresql:
+    soe_storage_port: 8004
 ycsb-default-props:
   totalrecordcount: 100000
   operationcount: 1000
