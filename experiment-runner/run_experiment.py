@@ -133,7 +133,9 @@ def load_before_run(default_cfg, experiment_spec):
 
 def restore_before_run(default_cfg, experiment_spec):
     db = experiment_spec[DB]
+    print(f"Restoring {db} db...")
     db_restore_scripts.restore_db(db)
+    print(f"Finished restoring {db} db.")
 
 
 def setup_indexes_for_experiment(experiment_spec):

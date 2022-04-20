@@ -10,7 +10,11 @@ db-specific-props:
     soe_storage_port: 8002
   mongodb:
     soe_storage_port: 8003
-  postgresql:
+  postgrenosql:
+    postgrenosql.url: jdbc:postgresql://dbis-nosql-comparison.uibk.ac.at:5432/test
+    postgrenosql.user: postgres
+    postgrenosql.passwd: postgres
+    postgrenosql.autocommit: true
     soe_storage_port: 8004
 ycsb-default-props:
   totalrecordcount: 100000

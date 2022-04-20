@@ -9,6 +9,7 @@ def restart_memcached(port):
     # the memcached process from earlier run is usually already dead
     execute_cmd_on_shell(kill_memcached)
     time.sleep(3)
-    start_memcached = f"memcached -p {port}"
+    memcached_memory_mb = 1024
+    start_memcached = f"memcached -p {port} -m {memcached_memory_mb}"
     execute_cmd_on_shell(start_memcached, wait=False)
 
