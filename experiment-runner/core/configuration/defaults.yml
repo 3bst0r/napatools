@@ -10,6 +10,7 @@ db-specific-props:
     soe_storage_port: 8002
   mongodb:
     soe_storage_port: 8003
+    mongodb.url: mongodb://dbis-nosql-comparison.uibk.ac.at
   postgrenosql:
     postgrenosql.url: jdbc:postgresql://dbis-nosql-comparison.uibk.ac.at:5432/test
     postgrenosql.user: postgres
@@ -23,7 +24,7 @@ ycsb-default-run-props:
   # unreachable operationcount within maxexecutiontime
   operationcount: 900000000
   # max execution time in seconds
-  maxexecutiontime: 30
+  maxexecutiontime: 120
   threadcount: 1
   measurement.trackjvm: "true"
   measurementtype: hdrhistogram+raw

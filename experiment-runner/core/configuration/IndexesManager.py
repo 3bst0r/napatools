@@ -3,7 +3,7 @@ from enum import Enum, auto
 
 from .config_parameters import *
 from .indexes_mappings import get_indexes_for_workload, get_all_indexes, get_best_indexes_for_operation
-from .indexes_scripts import drop_all_indexes, create_index
+from .indexes_scripts import drop_all_indexes, create_index, post_indexing
 
 
 class IndexesStrategies(Enum):
@@ -42,6 +42,7 @@ class IndexesManager:
         elif self.indexes_strategy is IndexesStrategies.none:
             # nothing to do here, all indexes already dropped
             pass
+        self.post_indexing()
 
     def drop_all_indexes(self):
         print(f"dropping all indexes on {self.db}...")
@@ -77,3 +78,9 @@ class IndexesManager:
             print(f"creating index {index} on {self.db}....")
             create_index(index, self.db)
             print(f"created index {index} on {self.db}")
+
+    def post_indexing(self):
+        print(f"executing post-indexing step on {self.db}")
+        post_indexing(self.db)
+        print(f"executed post-indexing step on {self.db}")
+

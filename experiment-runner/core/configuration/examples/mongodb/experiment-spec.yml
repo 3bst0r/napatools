@@ -1,7 +1,7 @@
 # Created by Johannes A. Ebster
-db: couchbase2
+db: mongodb
 #workload: soe/workloadsf
-operation: soe_read
+operation: soe_page
 experiment-name: example_experiment
 #indexes-strategy: all
 #indexes-strategy: none
