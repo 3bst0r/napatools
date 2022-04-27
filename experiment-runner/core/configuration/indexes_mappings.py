@@ -53,6 +53,16 @@ OPERATION_MAP: Dict[Operation, Set[IndexInstance]] = {
     Operation.LiteralArray: {IndexInstance.ix11}
 }
 
+OPERATION_POINT_QUERY: Set[Operation] = {
+    Operation.Read,
+    Operation.Search,
+    Operation.Page,
+    Operation.NestScan,
+    Operation.Report,
+    Operation.Report2,
+    Operation.LiteralArray
+}
+
 WORKLOAD_OP_MAP = {
     "soe/workloadsa": {Operation.Update, Operation.Read},
     "soe/workloadsb": {Operation.Update, Operation.Read},
@@ -96,6 +106,15 @@ def get_indexes_for_workload(workload):
 
 
 WORKLOAD_MAP = {workload: get_indexes_for_workload(workload) for workload in WORKLOAD_OP_MAP}
+
+
+def is_point_query_operation(operation: str):
+    operation = Operation(operation)
+    return operation in OPERATION_POINT_QUERY
+
+
+def contains_point_query_operation(workload: str):
+    return WORKLOAD_OP_MAP[workload].intersection(OPERATION_POINT_QUERY)
 
 
 def get_best_indexes_for_operation(operation: str, db: str = None) -> List[str]:

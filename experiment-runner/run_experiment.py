@@ -5,6 +5,7 @@ from yaml import load
 from core.configuration.YCSBCommandBuilder import YCSBCommandBuilder
 from core.configuration.config_parameters import *
 from core.configuration.IndexesManager import IndexesManager
+from core.configuration.indexes_mappings import is_point_query_operation, contains_point_query_operation
 import core.configuration.subprocess_utils as subprocess_utils
 import core.configuration.db_restore_scripts as db_restore_scripts
 import core.configuration.memcached_utils as memcached
@@ -18,6 +19,11 @@ try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
     from yaml import Loader, Dumper
+
+
+def reraise(e, *args):
+    e.args = args + e.args
+    raise e.with_traceback(e.__traceback__)
 
 
 def main():
@@ -103,18 +109,32 @@ def run_experiment(default_cfg, experiment_spec):
 
 
 def validate_spec(experiment_spec):
-    if OPERATION in experiment_spec and WORKLOAD in experiment_spec:
-        raise ValueError(f"Both {OPERATION} and {WORKLOAD} are present in spec")
-    if OPERATION not in experiment_spec and WORKLOAD not in experiment_spec:
-        raise ValueError(f"Either {OPERATION} or {WORKLOAD} must be present in spec")
-    if EXPERIMENT_NAME not in experiment_spec:
-        raise ValueError(f"{EXPERIMENT_NAME} must be present in spec")
-    if RESTORE_DB_BEFORE_RUN not in experiment_spec:
-        raise ValueError(f"{RESTORE_DB_BEFORE_RUN} must be present in spec")
-    if LOAD_BEFORE_RUN not in experiment_spec:
-        raise ValueError(f"{LOAD_BEFORE_RUN} must be present in spec")
-    if COMMAND in experiment_spec:
-        raise ValueError(f"{COMMAND} can no longer be specified in spec")
+    try:
+        if OPERATION in experiment_spec and WORKLOAD in experiment_spec:
+            raise ValueError(f"Both {OPERATION} and {WORKLOAD} are present in spec")
+        if OPERATION not in experiment_spec and WORKLOAD not in experiment_spec:
+            raise ValueError(f"Either {OPERATION} or {WORKLOAD} must be present in spec")
+        if DB not in experiment_spec:
+            raise ValueError(f"{DB} must be present in spec")
+        if EXPERIMENT_NAME not in experiment_spec:
+            raise ValueError(f"{EXPERIMENT_NAME} must be present in spec")
+        if RESTORE_DB_BEFORE_RUN not in experiment_spec:
+            raise ValueError(f"{RESTORE_DB_BEFORE_RUN} must be present in spec")
+        if LOAD_BEFORE_RUN not in experiment_spec:
+            raise ValueError(f"{LOAD_BEFORE_RUN} must be present in spec")
+        if COMMAND in experiment_spec:
+            raise ValueError(f"{COMMAND} can no longer be specified in spec")
+        if USE_HASH_INDEXES in experiment_spec and experiment_spec[USE_HASH_INDEXES]:
+            if experiment_spec[DB] != POSTGRESQL:
+                raise ValueError(f"{USE_HASH_INDEXES} is only supported for {DB}: {POSTGRESQL}")
+            if OPERATION in experiment_spec and not is_point_query_operation(experiment_spec[OPERATION]):
+                raise ValueError(f"{experiment_spec[OPERATION]} is not a point-query, "
+                                 f"so it cannot be used with {USE_HASH_INDEXES}")
+            if WORKLOAD in experiment_spec and not contains_point_query_operation(experiment_spec[WORKLOAD]):
+                raise ValueError(f"{experiment_spec[WORKLOAD]} does not contain point-queries, "
+                                 f"so it cannot be used with {USE_HASH_INDEXES}")
+    except ValueError as e:
+        reraise(e, 'experiment_spec validation failed')
 
 
 def stop_all_db_services_on_remote_machine():
