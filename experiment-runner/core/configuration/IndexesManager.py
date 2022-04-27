@@ -37,6 +37,8 @@ class IndexesManager:
                 raise ValueError(f"{experiment_spec[WORKLOAD]} does not contain point-queries, "
                                  f"so it cannot be used with {USE_HASH_INDEXES}")
             self.use_hash_indexes = True
+        else:
+            self.use_hash_indexes = False
         self.indexes_strategy = indexes_strategy
         self.db = experiment_spec[DB]
         if WORKLOAD in experiment_spec:
