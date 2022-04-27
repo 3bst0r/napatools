@@ -29,6 +29,11 @@ def main():
     default_cfg = load_default_cfg(args.default_config)
     experiment_spec = load_experiment_spec()
 
+    # save all output files to out/ directory within current_working_dir
+    out_dir_path = os.path.join(args.current_working_dir, 'out')
+    os.makedirs(out_dir_path, exist_ok=True)
+    os.chdir(out_dir_path)
+
     run_experiment(default_cfg=default_cfg, experiment_spec=experiment_spec)
 
 
