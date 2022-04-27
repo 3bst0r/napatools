@@ -49,6 +49,7 @@ OPERATION_MAP: Dict[Operation, Set[IndexInstance]] = {
     Operation.ArrayDeepScan: {IndexInstance.ix5},
     Operation.Report: {IndexInstance.ix6},
     Operation.Report2: {IndexInstance.ix7},
+    # TODO should have only one ix10 and have the dbs create two indexes in place of it
     Operation.CompoundMultipleArray: {IndexInstance.ix10a, IndexInstance.ix10b},
     Operation.LiteralArray: {IndexInstance.ix11}
 }

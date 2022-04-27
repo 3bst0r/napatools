@@ -2,7 +2,8 @@
 from enum import Enum, auto
 
 from .config_parameters import *
-from .indexes_mappings import get_indexes_for_workload, get_all_indexes, get_best_indexes_for_operation
+from .indexes_mappings import get_indexes_for_workload, get_all_indexes, get_best_indexes_for_operation, \
+    is_point_query_operation, contains_point_query_operation
 from .indexes_scripts import drop_all_indexes, create_index, post_indexing
 
 
@@ -26,6 +27,16 @@ class IndexesManager:
             if OPERATION not in experiment_spec:
                 raise ValueError(f"if {INDEXES_STRATEGY} is {IndexesStrategies.best}, {OPERATION} must be specified")
             self.operation = experiment_spec[OPERATION]
+        if USE_HASH_INDEXES in experiment_spec and experiment_spec[USE_HASH_INDEXES]:
+            if experiment_spec[DB] != POSTGRESQL:
+                raise ValueError(f"{USE_HASH_INDEXES} is only supported for {DB}: {POSTGRESQL}")
+            if OPERATION in experiment_spec and not is_point_query_operation(experiment_spec[OPERATION]):
+                raise ValueError(f"{experiment_spec[OPERATION]} is not a point-query, "
+                                 f"so it cannot be used with {USE_HASH_INDEXES}")
+            if WORKLOAD in experiment_spec and not contains_point_query_operation(experiment_spec[WORKLOAD]):
+                raise ValueError(f"{experiment_spec[WORKLOAD]} does not contain point-queries, "
+                                 f"so it cannot be used with {USE_HASH_INDEXES}")
+            self.use_hash_indexes = True
         self.indexes_strategy = indexes_strategy
         self.db = experiment_spec[DB]
         if WORKLOAD in experiment_spec:
@@ -76,11 +87,10 @@ class IndexesManager:
             pass
         else:
             print(f"creating index {index} on {self.db}....")
-            create_index(index, self.db)
+            create_index(index, self.db, self.use_hash_indexes)
             print(f"created index {index} on {self.db}")
 
     def post_indexing(self):
         print(f"executing post-indexing step on {self.db}")
         post_indexing(self.db)
         print(f"executed post-indexing step on {self.db}")
-

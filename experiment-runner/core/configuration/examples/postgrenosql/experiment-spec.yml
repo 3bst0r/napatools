@@ -1,12 +1,12 @@
 # Created by Johannes A. Ebster
 db: postgrenosql
-workload: soe/workloadsa
-#operation: soe_compound_multiple_array
+workload: soe/workloadsf
+#operation: soe_read
 experiment-name: example_experiment
 #indexes-strategy: all
 #indexes-strategy: none
-indexes-strategy: best
-#indexes-strategy: workload
+#indexes-strategy: best
+indexes-strategy: workload
 use-hash-indexes: yes
 restore-db-before-run: no
 load-before-run: yes

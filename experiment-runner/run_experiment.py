@@ -5,7 +5,6 @@ from yaml import load
 from core.configuration.YCSBCommandBuilder import YCSBCommandBuilder
 from core.configuration.config_parameters import *
 from core.configuration.IndexesManager import IndexesManager
-from core.configuration.indexes_mappings import is_point_query_operation, contains_point_query_operation
 import core.configuration.subprocess_utils as subprocess_utils
 import core.configuration.db_restore_scripts as db_restore_scripts
 import core.configuration.memcached_utils as memcached
@@ -124,15 +123,6 @@ def validate_spec(experiment_spec):
             raise ValueError(f"{LOAD_BEFORE_RUN} must be present in spec")
         if COMMAND in experiment_spec:
             raise ValueError(f"{COMMAND} can no longer be specified in spec")
-        if USE_HASH_INDEXES in experiment_spec and experiment_spec[USE_HASH_INDEXES]:
-            if experiment_spec[DB] != POSTGRESQL:
-                raise ValueError(f"{USE_HASH_INDEXES} is only supported for {DB}: {POSTGRESQL}")
-            if OPERATION in experiment_spec and not is_point_query_operation(experiment_spec[OPERATION]):
-                raise ValueError(f"{experiment_spec[OPERATION]} is not a point-query, "
-                                 f"so it cannot be used with {USE_HASH_INDEXES}")
-            if WORKLOAD in experiment_spec and not contains_point_query_operation(experiment_spec[WORKLOAD]):
-                raise ValueError(f"{experiment_spec[WORKLOAD]} does not contain point-queries, "
-                                 f"so it cannot be used with {USE_HASH_INDEXES}")
     except ValueError as e:
         reraise(e, 'experiment_spec validation failed')
 
