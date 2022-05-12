@@ -67,6 +67,12 @@ def load_yaml(filename):
         return load(yamlfile, Loader=Loader)
 
 
+def clean_up(default_cfg, experiment_spec):
+    db = experiment_spec[DB]
+    port = default_cfg[DB_SPECIFIC_PROPS][db][SOE_STORAGE_PORT]
+    memcached.kill_memcached(port)
+
+
 def run_experiment(default_cfg, experiment_spec):
     validate_spec(experiment_spec)
 
@@ -105,6 +111,10 @@ def run_experiment(default_cfg, experiment_spec):
     print("running ycsb...")
     ycsb_run(default_cfg=default_cfg, experiment_spec=experiment_spec)
     print("ycsb run finished")
+
+    print("cleaning up...")
+    clean_up(default_cfg=default_cfg, experiment_spec=experiment_spec)
+    print("finished cleaning up")
 
 
 def validate_spec(experiment_spec):
