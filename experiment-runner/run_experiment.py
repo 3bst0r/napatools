@@ -1,4 +1,5 @@
 # Created by Johannes A. Ebster
+import sys
 import time
 
 from yaml import load
@@ -11,6 +12,8 @@ import core.configuration.memcached_utils as memcached
 import argparse
 import os
 import subprocess
+
+YCSB_PATH = 'YCSB_PATH'
 
 MONITOR_CPU_SCRIPT = "monitor_cpu.sh"
 
@@ -35,7 +38,7 @@ def main():
     experiment_spec = load_experiment_spec()
 
     # save all output files to out/ directory within current_working_dir
-    out_dir_path = os.path.join(args.current_working_dir, 'out')
+    out_dir_path = os.path.join(os.getcwd(), 'out')
     os.makedirs(out_dir_path, exist_ok=True)
     os.chdir(out_dir_path)
 
@@ -183,7 +186,10 @@ def ycsb_run(default_cfg, experiment_spec):
 
 
 def exec_ycsb(default_cfg, experiment_spec):
-    ycsb_path = default_cfg[YCSB_PATH]
+    ycsb_path = os.getenv(YCSB_PATH)
+    if not ycsb_path:
+        print(f"environment variable {YCSB_PATH} has to be set")
+        sys.exit(1)
     ycsb_sh = f"{ycsb_path}/bin/ycsb.sh"
     ycsb_command_builder = YCSBCommandBuilder(experiment_spec=experiment_spec, default_config=default_cfg)
     ycsb_command = ycsb_command_builder.build_command()
