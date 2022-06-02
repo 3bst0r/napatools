@@ -5,6 +5,7 @@ db-specific-props:
     soe_storage_port: 8001
     couchbase.password: default
     couchbase.host: dbis-nosql-comparison.uibk.ac.at
+    couchbase.kv: false
   arangodb3:
     arangodb.ip: dbis-nosql-comparison.uibk.ac.at
     soe_storage_port: 8002
