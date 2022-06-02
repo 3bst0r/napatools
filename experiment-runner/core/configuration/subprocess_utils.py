@@ -1,7 +1,7 @@
 # Created by Johannes A. Ebster
 import subprocess
 
-VM_DBIS_NOSQL_HOST = "vm-dbis-nosql"
+VM_DBIS_NOSQL_HOST = "server-vm-dbis-nosql"
 VM_DBIS_SCRIPTS = "~/ifistorage/scripts"
 LOAD_PATH = f"source {VM_DBIS_SCRIPTS}/setup_path.sh"
 
