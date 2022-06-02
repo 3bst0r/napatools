@@ -38,7 +38,7 @@ def main():
     experiment_spec = load_experiment_spec()
 
     # save all output files to out/ directory within current_working_dir
-    out_dir_path = os.path.join(args.current_working_dir, 'out')
+    out_dir_path = os.path.join(os.getcwd(), 'out')
     os.makedirs(out_dir_path, exist_ok=True)
     os.chdir(out_dir_path)
 
