@@ -7,6 +7,6 @@ experiment-name: example_experiment
 #indexes-strategy: none
 indexes-strategy: best
 #indexes-strategy: workload
-restore-db-before-run: yes
+restore-db-before-run: no
 load-before-run: yes
 debug-java: no
