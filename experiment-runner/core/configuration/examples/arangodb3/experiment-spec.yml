@@ -10,3 +10,5 @@ indexes-strategy: best
 restore-db-before-run: no
 load-before-run: yes
 debug-java: no
+ycsb-run-props:
+  threadcount: 250

@@ -2,7 +2,8 @@
 import os
 
 from .config_parameters import DB, WORKLOAD, COMMAND, MONGODB, COUCHBASE, ARANGODB, DB_SPECIFIC_PROPS, \
-    YCSB_DEFAULT_PROPS, YCSB_DEFAULT_RUN_PROPS, YCSB_DEFAULT_LOAD_PROPS, OPERATION, EXPERIMENT_NAME, POSTGRESQL
+    YCSB_DEFAULT_PROPS, YCSB_DEFAULT_RUN_PROPS, YCSB_DEFAULT_LOAD_PROPS, OPERATION, EXPERIMENT_NAME, POSTGRESQL, \
+    YCSB_RUN_PROPS
 
 HDR_HISTOGRAM_OUTPUT_PATH = "hdrhistogram.output.path"
 RAW_OUTPUT_FILE = 'measurement.raw.output_file'
@@ -18,10 +19,12 @@ class YCSBCommandBuilder:
                f"{self.ycsb_default_run_props()} " \
                f"{self.ycsb_default_load_props()} " \
                f"{self.ycsb_operation_props()} " \
+               f"{self.ycsb_run_props()} " \
                f"{self.output_props()} "
 
     def __init__(self, experiment_spec: dict, default_config: dict):
         self.default_config = default_config
+        self.experiment_spec = experiment_spec
         self.experiment_name = experiment_spec[EXPERIMENT_NAME]
         self.workload = self.set_workload(experiment_spec)
         self.operation = experiment_spec[OPERATION] if OPERATION in experiment_spec else None
@@ -76,6 +79,13 @@ class YCSBCommandBuilder:
         else:
             ycsb_default_run_props = self.default_config[YCSB_DEFAULT_RUN_PROPS]
             return self.to_parameters(ycsb_default_run_props)
+
+    def ycsb_run_props(self):
+        if self.command != "run" or YCSB_RUN_PROPS not in self.experiment_spec:
+            return " "
+        else:
+            ycsb_run_props = self.experiment_spec[YCSB_RUN_PROPS]
+            return self.to_parameters(ycsb_run_props)
 
     def ycsb_default_load_props(self) -> str:
         if self.command != "load":

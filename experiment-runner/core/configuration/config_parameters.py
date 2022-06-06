@@ -11,6 +11,8 @@ DB_SPECIFIC_PROPS = 'db-specific-props'
 COMMAND = 'command'
 YCSB_DEFAULT_PROPS = 'ycsb-default-props'
 YCSB_DEFAULT_RUN_PROPS = 'ycsb-default-run-props'
+# these override the default properties run props
+YCSB_RUN_PROPS = 'ycsb-run-props'
 YCSB_DEFAULT_LOAD_PROPS = 'ycsb-default-load-props'
 EXPERIMENT_NAME = 'experiment-name'
 INDEXES_STRATEGY = 'indexes-strategy'
