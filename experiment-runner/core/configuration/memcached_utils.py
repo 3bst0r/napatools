@@ -7,7 +7,8 @@ def restart_memcached(port):
     kill_memcached(port)
     time.sleep(3)
     memcached_memory_mb = 1024
-    start_memcached = f"memcached -p {port} -m {memcached_memory_mb}"
+    max_open_connections = 10240
+    start_memcached = f"memcached -p {port} -m {memcached_memory_mb} -c {max_open_connections}"
     execute_cmd_on_shell(start_memcached, wait=False)
 
 
