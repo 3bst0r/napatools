@@ -55,6 +55,8 @@ OPERATION_MAP: Dict[Operation, Set[IndexInstance]] = {
 }
 
 OPERATION_POINT_QUERY: Set[Operation] = {
+    Operation.Insert,
+    Operation.Update,
     Operation.Read,
     Operation.Search,
     Operation.Page,
